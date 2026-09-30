@@ -1224,6 +1224,9 @@ a:focus-visible {
 
 .room--table .room__header {
   flex: 0 0 auto;
+  width: 100%;
+  padding: 0 24px;
+  margin-top: 16px;
 }
 
 .room--table .room__layout--table {
@@ -2240,7 +2243,7 @@ a:focus-visible {
 .room--table .room__table-story {
   display: grid;
   gap: 0.75rem;
-  width: min(100%, 52rem);
+  width: 100%;
   margin: 0 auto;
   padding: 0 0.5rem;
 }

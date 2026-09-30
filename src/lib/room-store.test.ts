@@ -15,7 +15,6 @@ import { toClientSnapshot } from "./room-snapshot";
 beforeEach(() => _resetStoreForTests());
 
 const baseInput = {
-  name: "Sprint 12",
   deck: "fibonacci" as const,
   hostName: "Ana",
   hostAvatar: { type: "emoji" as const, value: "🎯" },
@@ -31,7 +30,7 @@ describe("room-store", () => {
   });
 
   it("joins, votes hidden until reveal, then resets", () => {
-    const created = createRoom({ ...baseInput, name: "R", hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
+    const created = createRoom({ ...baseInput, hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
     const joined = joinRoom(created.room.code, {
       name: "Bob",
       avatar: { type: "emoji", value: "🐸" },
@@ -57,7 +56,7 @@ describe("room-store", () => {
   });
 
   it("clears story on new round", () => {
-    const created = createRoom({ ...baseInput, name: "R", hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
+    const created = createRoom({ ...baseInput, hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
     setStory(created.room.code, created.hostToken, {
       title: "Title",
       description: "Desc",
@@ -69,7 +68,7 @@ describe("room-store", () => {
   });
 
   it("sets free-text story", () => {
-    const created = createRoom({ ...baseInput, name: "R", hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
+    const created = createRoom({ ...baseInput, hostName: "Host", hostAvatar: { type: "emoji", value: "👑" } });
     setStory(created.room.code, created.hostToken, {
       title: "Nova",
       description: "Detalhe",
@@ -120,7 +119,7 @@ type RoomsGlobal = typeof globalThis & {
 
 describe("room-store globalThis singleton", () => {
   it("stores rooms on globalThis.__funnyPlanningPokerRooms", () => {
-    const { room } = createRoom({ ...baseInput, name: "Singleton" });
+    const { room } = createRoom(baseInput);
 
     const g = globalThis as RoomsGlobal;
     expect(g.__funnyPlanningPokerRooms).toBeInstanceOf(Map);
@@ -129,7 +128,7 @@ describe("room-store globalThis singleton", () => {
   });
 
   it("clears the same Map reference on _resetStoreForTests", () => {
-    createRoom({ ...baseInput, name: "Reset", deck: "tshirt" });
+    createRoom({ ...baseInput, deck: "tshirt" });
 
     const g = globalThis as RoomsGlobal;
     const before = g.__funnyPlanningPokerRooms;

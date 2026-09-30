@@ -13,7 +13,6 @@ export function toClientSnapshot(
 
   return {
     code: room.code,
-    name: room.name,
     deck: room.deck,
     hostId: room.hostId,
     players,

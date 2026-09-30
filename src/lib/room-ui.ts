@@ -60,7 +60,6 @@ const ERROR_MAP: Array<[RegExp, string]> = [
   [/votes already revealed/i, "Os votos já foram revelados."],
   [/invalid vote value/i, "Carta inválida para este baralho."],
   [/invalid room payload/i, "Dados da sala inválidos."],
-  [/room name is required/i, "Informe o nome da sala."],
   [/invalid deck/i, "Baralho inválido."],
   [/host name is required/i, "Informe o nome do anfitrião."],
   [/invalid host avatar/i, "Avatar inválido."],

@@ -10,7 +10,6 @@ import {
 } from "./validation";
 
 const validPublic = {
-  name: "Sprint 12",
   deck: "fibonacci" as const,
   hostName: "Ana",
   hostAvatar: { type: "emoji" as const, value: "🎯" },
@@ -67,12 +66,12 @@ describe("validateCreateRoomInput", () => {
     expect(validateCreateRoomInput(validPublic)).toEqual(validPublic);
   });
 
-  it("rejects missing name or invalid deck", () => {
-    expect(validateCreateRoomInput({ ...validPublic, name: "" })).toEqual({
-      error: "Room name is required",
-    });
+  it("rejects invalid deck or missing host name", () => {
     expect(validateCreateRoomInput({ ...validPublic, deck: "nope" })).toEqual({
       error: "Invalid deck",
+    });
+    expect(validateCreateRoomInput({ ...validPublic, hostName: "" })).toEqual({
+      error: "Host name is required",
     });
   });
 });

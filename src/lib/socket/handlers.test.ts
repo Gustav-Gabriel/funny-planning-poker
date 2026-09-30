@@ -78,14 +78,12 @@ function emitAck(
 }
 
 const roomStoreInput = {
-  name: "Sprint 12",
   deck: "fibonacci" as const,
   hostName: "Ana",
   hostAvatar: { type: "emoji" as const, value: "🎯" },
 };
 
 const roomCreatePayload = {
-  name: "Sprint 12",
   deck: "fibonacci" as const,
   hostName: "Ana",
   hostAvatar: { type: "emoji" as const, value: "🎯" },

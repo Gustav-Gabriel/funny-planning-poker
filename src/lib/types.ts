@@ -16,7 +16,6 @@ export type Story = {
 
 export type RoomState = {
   code: string;
-  name: string;
   deck: DeckType;
   hostId: string;
   players: Map<string, Player>;
@@ -34,7 +33,6 @@ export type ClientPlayer = Omit<Player, never> & { hasVoted: boolean };
 
 export type ClientRoomSnapshot = {
   code: string;
-  name: string;
   deck: DeckType;
   hostId: string;
   players: Array<{

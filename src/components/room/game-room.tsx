@@ -136,10 +136,10 @@ export function GameRoom({
     <div className="room room--table">
       <header className="room__header">
         <div className="room__header-identity">
-          <p className="eyebrow">
-            <span aria-hidden="true">✦</span> {room.name}
-          </p>
           <h1>Sala {room.code}</h1>
+        </div>
+        <div className="room__header-actions">
+          <ThemeToggle />
           <div className="room__table-actions">
             {isHost && !room.revealed ? (
               <Button type="button" onClick={handleReveal}>
@@ -152,9 +152,6 @@ export function GameRoom({
               </Button>
             ) : null}
           </div>
-        </div>
-        <div className="room__header-actions">
-          <ThemeToggle />
           <button type="button" className="text-link" onClick={handleCopyLink}>
             Copiar link
           </button>

@@ -54,7 +54,6 @@ export function isValidVoteValue(deck: DeckType, value: unknown): value is strin
 }
 
 export type ValidatedCreateRoomPublic = {
-  name: string;
   deck: DeckType;
   hostName: string;
   hostAvatar: Player["avatar"];
@@ -68,9 +67,6 @@ export function validateCreateRoomInput(
   }
   const value = input as Record<string, unknown>;
 
-  const name = clampString(value.name, MAX_NAME_LENGTH);
-  if (!name) return { error: "Room name is required" };
-
   if (!isValidDeck(value.deck)) return { error: "Invalid deck" };
 
   const hostName = clampString(value.hostName, MAX_NAME_LENGTH);
@@ -81,7 +77,6 @@ export function validateCreateRoomInput(
   }
 
   return {
-    name,
     deck: value.deck as DeckType,
     hostName,
     hostAvatar: value.hostAvatar as Player["avatar"],

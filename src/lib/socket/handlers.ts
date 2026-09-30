@@ -101,7 +101,6 @@ export function registerSocketHandlers(io: Server): void {
         }
 
         const created = createRoom({
-          name: validated.name,
           deck: validated.deck,
           hostName: validated.hostName,
           hostAvatar: validated.hostAvatar,

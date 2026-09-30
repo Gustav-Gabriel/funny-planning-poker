@@ -56,7 +56,6 @@ export function purgeExpired(now: number = Date.now()): void {
 }
 
 export type CreateRoomInput = {
-  name: string;
   deck: DeckType;
   hostName: string;
   hostAvatar: Player["avatar"];
@@ -95,7 +94,6 @@ export function createRoom(input: CreateRoomInput): {
 
   const room: StoredRoom = {
     code,
-    name: input.name,
     deck: input.deck,
     hostId: playerId,
     players: new Map([[playerId, player]]),

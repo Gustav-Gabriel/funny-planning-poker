@@ -23,8 +23,7 @@ export default function Home() {
           </p>
           <h1>Funny Planning Poker</h1>
           <p className="hero__support">
-            Abra uma mesa, chame o time, vote escondido e revele junto —
-            sem IA, sem Jira, só consenso na mão.
+            Abra uma mesa, chame o time, vote escondido e revele junto — de forma descontraída.
           </p>
           <div className="hero__actions">
             <Link className={buttonClassName("primary")} href="/create">

@@ -11,7 +11,6 @@ import { Button } from "./ui/button";
 import { InputField, SelectField } from "./ui/field";
 
 export type CreateRoomFields = {
-  roomName: string;
   deck: DeckType;
   hostName: string;
   hostAvatar: Player["avatar"];
@@ -19,7 +18,6 @@ export type CreateRoomFields = {
 
 export function buildRoomPayload(fields: CreateRoomFields) {
   return {
-    name: fields.roomName.trim(),
     deck: fields.deck,
     hostName: fields.hostName.trim(),
     hostAvatar: fields.hostAvatar,
@@ -51,7 +49,6 @@ export function CreateRoomForm() {
 
     const form = new FormData(event.currentTarget);
     const fields: CreateRoomFields = {
-      roomName: String(form.get("roomName") ?? ""),
       deck: String(form.get("deck")) as DeckType,
       hostName: String(form.get("hostName") ?? ""),
       hostAvatar,
@@ -101,23 +98,13 @@ export function CreateRoomForm() {
           <span>01</span>
           <div>
             <h2>Sua mesa</h2>
-            <p>Dê um nome e escolha como o time vai pontuar.</p>
+            <p>Escolha como o time vai pontuar.</p>
           </div>
         </div>
-        <div className="field-grid">
-          <InputField
-            id="roomName"
-            name="roomName"
-            label="Nome da sala"
-            placeholder="Ex.: Poker da sexta"
-            autoComplete="off"
-            required
-          />
-          <SelectField id="deck" name="deck" label="Baralho" defaultValue="fibonacci">
-            <option value="fibonacci">Fibonacci</option>
-            <option value="tshirt">Tamanhos (XS a XL)</option>
-          </SelectField>
-        </div>
+        <SelectField id="deck" name="deck" label="Baralho" defaultValue="fibonacci">
+          <option value="fibonacci">Fibonacci</option>
+          <option value="tshirt">Tamanhos (XS a XL)</option>
+        </SelectField>
       </section>
 
       <section className="form-section">

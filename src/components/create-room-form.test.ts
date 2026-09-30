@@ -5,13 +5,11 @@ describe("buildRoomPayload", () => {
   it("builds create payload without secrets", () => {
     expect(
       buildRoomPayload({
-        roomName: "  Poker  ",
         deck: "fibonacci",
         hostName: "  Ana  ",
         hostAvatar: { type: "emoji", value: "🎯" },
       }),
     ).toEqual({
-      name: "Poker",
       deck: "fibonacci",
       hostName: "Ana",
       hostAvatar: { type: "emoji", value: "🎯" },
