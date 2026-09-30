@@ -27,6 +27,7 @@ Abra [http://localhost:3000](http://localhost:3000).
 - Avatares emoji ou GIF (KLIPY)
 - História da rodada em texto livre (anfitrião)
 - Votos secretos, revelar e nova rodada
+- Camada social: reações na mesa, comentários, burst no reveal
 - Layout **modo mesa** (desktop e mobile)
 
 ## Deploy

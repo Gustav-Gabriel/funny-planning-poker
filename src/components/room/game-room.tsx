@@ -1,15 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { FloatingReactions } from "@/components/room/floating-reactions";
 import { Participants } from "@/components/room/participants";
+import { ReactionDock } from "@/components/room/reaction-dock";
+import { RoastComposer } from "@/components/room/roast-composer";
 import { StoryPanel } from "@/components/room/story-panel";
 import { VoteDeck } from "@/components/room/vote-deck";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { translateError, type MutationAck } from "@/lib/room-ui";
 import { clearSession } from "@/lib/session-client";
+import { burstEmojisFor, computeRevealMood } from "@/lib/social";
 import { getSocket } from "@/lib/socket/client";
-import type { ClientRoomSnapshot, Player } from "@/lib/types";
+import type {
+  ClientRoomSnapshot,
+  Player,
+  ReactionShowEvent,
+  RevealBurstEvent,
+} from "@/lib/types";
 
 type GameRoomProps = {
   code: string;
@@ -19,6 +28,12 @@ type GameRoomProps = {
   hostToken?: string;
   onLeave: () => void;
 };
+
+const BURST_LABELS = {
+  consensus: "Consenso!",
+  split: "Mesa dividida",
+  chaos: "Caos total",
+} as const;
 
 export function GameRoom({
   code,
@@ -31,8 +46,14 @@ export function GameRoom({
   const [room, setRoom] = useState<ClientRoomSnapshot>(initialRoom);
   const [voteError, setVoteError] = useState("");
   const [roomLostError, setRoomLostError] = useState("");
+  const [reactionTargetId, setReactionTargetId] = useState<string | null>(null);
+  const [floatingReactions, setFloatingReactions] = useState<
+    ReactionShowEvent[]
+  >([]);
+  const [burst, setBurst] = useState<RevealBurstEvent | null>(null);
   const playerIdRef = useRef(player.id);
   const playerTokenRef = useRef(playerToken);
+  const wasRevealedRef = useRef(initialRoom.revealed);
 
   useEffect(() => {
     playerIdRef.current = player.id;
@@ -45,6 +66,10 @@ export function GameRoom({
     function handleRoomState(next: ClientRoomSnapshot) {
       if (next.code !== code) return;
       setRoom(next);
+    }
+
+    function handleReaction(event: ReactionShowEvent) {
+      setFloatingReactions((prev) => [...prev.slice(-30), event]);
     }
 
     function reattach() {
@@ -66,16 +91,46 @@ export function GameRoom({
     }
 
     socket.on("room:state", handleRoomState);
+    socket.on("reaction:show", handleReaction);
     socket.on("connect", reattach);
 
     return () => {
       socket.off("room:state", handleRoomState);
+      socket.off("reaction:show", handleReaction);
       socket.off("connect", reattach);
     };
   }, [code]);
 
-  const self = room.players.find((candidate) => candidate.id === player.id) ?? player;
+  useEffect(() => {
+    if (room.revealed && !wasRevealedRef.current) {
+      const mood = computeRevealMood(room.players, room.deck);
+      setBurst({
+        id: `burst-${code}-${Date.now()}`,
+        mood,
+        emojis: burstEmojisFor(mood),
+      });
+    }
+    if (!room.revealed) {
+      setBurst(null);
+    }
+    wasRevealedRef.current = room.revealed;
+  }, [room.revealed, room.players, room.deck, code]);
+
+  useEffect(() => {
+    if (!burst) return;
+    const timer = window.setTimeout(() => setBurst(null), 3500);
+    return () => window.clearTimeout(timer);
+  }, [burst]);
+
+  const self = room.players.find((candidate) => candidate.id === player.id) ?? {
+    ...player,
+    hasVoted: player.vote !== null,
+    roast: player.roast ?? null,
+  };
   const isHost = room.hostId === player.id && Boolean(hostToken);
+  const targetPlayer = reactionTargetId
+    ? room.players.find((candidate) => candidate.id === reactionTargetId)
+    : null;
 
   function handleVote(value: string) {
     setVoteError("");
@@ -117,6 +172,34 @@ export function GameRoom({
   function handleCopyLink() {
     if (typeof window === "undefined") return;
     void navigator.clipboard?.writeText(window.location.href);
+  }
+
+  function handleReact(emoji: string) {
+    getSocket().emit(
+      "reaction:send",
+      {
+        roomCode: code,
+        emoji,
+        targetPlayerId: reactionTargetId,
+      },
+      () => undefined,
+    );
+  }
+
+  function handleSelectPlayer(playerId: string) {
+    setReactionTargetId((prev) => (prev === playerId ? null : playerId));
+  }
+
+  function handleRoast(roast: string | null) {
+    getSocket().emit(
+      "roast:set",
+      { roomCode: code, roast },
+      (ack: MutationAck) => {
+        if (ack && "ok" in ack && !ack.ok) {
+          setVoteError(translateError(ack.error));
+        }
+      },
+    );
   }
 
   if (roomLostError) {
@@ -172,13 +255,33 @@ export function GameRoom({
           />
         </div>
         <div className="room__table">
+          {burst ? (
+            <div
+              className={`reveal-burst-banner reveal-burst-banner--${burst.mood}`}
+              role="status"
+            >
+              <span className="reveal-burst-banner__emojis">
+                {burst.emojis.join(" ")}
+              </span>
+              <strong>{BURST_LABELS[burst.mood]}</strong>
+            </div>
+          ) : null}
+          <FloatingReactions reactions={floatingReactions} burst={burst} />
           <Participants
             players={room.players}
             hostId={room.hostId}
             revealed={room.revealed}
+            selectedPlayerId={reactionTargetId}
+            onSelectPlayer={handleSelectPlayer}
           />
         </div>
         <footer className="room__table-footer">
+          <ReactionDock
+            targetLabel={targetPlayer?.name ?? null}
+            onClearTarget={() => setReactionTargetId(null)}
+            onReact={handleReact}
+          />
+          <RoastComposer value={self.roast ?? null} onSubmit={handleRoast} />
           <VoteDeck
             cards={room.deckCards}
             selected={self.vote}

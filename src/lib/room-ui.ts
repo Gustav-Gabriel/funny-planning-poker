@@ -71,6 +71,11 @@ const ERROR_MAP: Array<[RegExp, string]> = [
   [/invalid story description/i, "Descrição da história inválida."],
   [/story description is too long/i, "A descrição da história é longa demais."],
   [/room code is required/i, "Informe o código da sala."],
+  [/invalid roast/i, "Texto inválido."],
+  [/roast is too long/i, "O texto é longo demais (máx. 80)."],
+  [/invalid reaction/i, "Reação inválida."],
+  [/reaction target not found/i, "Alvo da reação não encontrado."],
+  [/invalid reaction target/i, "Alvo da reação inválido."],
   [
     /\b(failed|required|not found|invalid|unauthorized|error|must be|cannot|unable)\b/i,
     "",

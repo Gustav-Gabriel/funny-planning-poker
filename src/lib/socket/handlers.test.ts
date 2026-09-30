@@ -159,6 +159,55 @@ describe("registerSocketHandlers", () => {
     expect(getRoom(room.code)?.revealed).toBe(true);
   });
 
+  it("broadcasts reactions and stores roast after reveal", async () => {
+    const host = await startHarness();
+    const created = await emitAck(host, "room:create", roomCreatePayload);
+    const room = created.room as { code: string };
+    const hostToken = created.hostToken as string;
+    const hostPlayer = created.player as { id: string };
+
+    const guest = await addClient();
+    await emitAck(guest, "room:join", {
+      roomCode: room.code,
+      name: "Bob",
+      avatar: { type: "emoji", value: "🐸" },
+    });
+
+    const reactionPromise = once<{ emoji: string; fromName: string }>(
+      guest,
+      "reaction:show",
+    );
+    expect(
+      await emitAck(host, "reaction:send", {
+        roomCode: room.code,
+        emoji: "😂",
+        targetPlayerId: null,
+      }),
+    ).toEqual({ ok: true });
+    await expect(reactionPromise).resolves.toMatchObject({
+      emoji: "😂",
+      fromName: "Ana",
+    });
+
+    await emitAck(host, "vote:cast", { value: "5" });
+    await emitAck(guest, "vote:cast", { value: "13" });
+
+    expect(
+      await emitAck(host, "vote:reveal", { roomCode: room.code, hostToken }),
+    ).toEqual({ ok: true });
+    expect(getRoom(room.code)?.revealed).toBe(true);
+
+    expect(
+      await emitAck(host, "roast:set", {
+        roomCode: room.code,
+        roast: "13 de verdade?",
+      }),
+    ).toEqual({ ok: true });
+    expect(getRoom(room.code)?.players.get(hostPlayer.id)?.roast).toBe(
+      "13 de verdade?",
+    );
+  });
+
   it("sets free-text story for host", async () => {
     const host = await startHarness();
     const created = await emitAck(host, "room:create", roomCreatePayload);

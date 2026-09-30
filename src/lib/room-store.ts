@@ -90,6 +90,7 @@ export function createRoom(input: CreateRoomInput): {
     isHost: true,
     connected: true,
     vote: null,
+    roast: null,
   };
 
   const room: StoredRoom = {
@@ -138,6 +139,7 @@ export function joinRoom(
     isHost: false,
     connected: true,
     vote: null,
+    roast: null,
   };
 
   room.players.set(playerId, player);
@@ -235,8 +237,30 @@ export function resetVotes(
   room.revealed = false;
   for (const player of room.players.values()) {
     player.vote = null;
+    player.roast = null;
   }
   room.story = null;
+  touchRoom(room.code);
+
+  return { ok: true };
+}
+
+export function setRoast(
+  code: string,
+  playerId: string,
+  roast: string | null,
+): { ok: true } | { ok: false; error: string } {
+  const room = getRoom(code);
+  if (!room) {
+    return { ok: false, error: "Room not found" };
+  }
+
+  const player = room.players.get(playerId);
+  if (!player) {
+    return { ok: false, error: "Player not found" };
+  }
+
+  player.roast = roast;
   touchRoom(room.code);
 
   return { ok: true };

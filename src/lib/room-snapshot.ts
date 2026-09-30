@@ -36,5 +36,6 @@ function toClientPlayer(
     connected: player.connected,
     hasVoted: player.vote !== null,
     vote: hideVote ? null : player.vote,
+    roast: player.roast,
   };
 }

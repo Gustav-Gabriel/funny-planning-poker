@@ -6,6 +6,8 @@ import {
   validateCreateRoomInput,
   validateJoinNameAvatar,
   validatePlayerUpdate,
+  validateReactionInput,
+  validateRoastInput,
   validateStoryInput,
 } from "./validation";
 
@@ -106,5 +108,31 @@ describe("validatePlayerUpdate", () => {
       avatar: { type: "emoji", value: "🎯" },
     });
     expect(validatePlayerUpdate("", undefined)).toEqual({ error: "Invalid name" });
+  });
+});
+
+describe("validateRoastInput", () => {
+  it("trims, clears empty, and caps length", () => {
+    expect(validateRoastInput("  oi  ")).toEqual({ roast: "oi" });
+    expect(validateRoastInput("   ")).toEqual({ roast: null });
+    expect(validateRoastInput("a".repeat(81))).toEqual({
+      error: "Roast is too long",
+    });
+  });
+});
+
+describe("validateReactionInput", () => {
+  it("accepts curated emoji and optional target", () => {
+    expect(validateReactionInput("😂", null)).toEqual({
+      emoji: "😂",
+      targetPlayerId: null,
+    });
+    expect(validateReactionInput("😂", "abc")).toEqual({
+      emoji: "😂",
+      targetPlayerId: "abc",
+    });
+    expect(validateReactionInput("🍕", null)).toEqual({
+      error: "Invalid reaction",
+    });
   });
 });

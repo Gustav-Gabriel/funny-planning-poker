@@ -7,12 +7,16 @@ type ParticipantsProps = {
   players: ClientPlayer[];
   hostId: string;
   revealed: boolean;
+  selectedPlayerId: string | null;
+  onSelectPlayer: (playerId: string) => void;
 };
 
 export function Participants({
   players,
   hostId,
   revealed,
+  selectedPlayerId,
+  onSelectPlayer,
 }: ParticipantsProps) {
   const stats = revealed ? computeVoteStats(players) : null;
 
@@ -37,33 +41,52 @@ export function Participants({
         {players.map((player) => {
           const facedown = player.hasVoted && !revealed;
           const revealedValue = revealed && player.vote !== null;
+          const selected = selectedPlayerId === player.id;
 
           return (
             <li
               key={player.id}
-              className={`participant participant--table${!player.connected ? " is-offline" : ""}`}
+              className={[
+                "participant",
+                "participant--table",
+                !player.connected ? "is-offline" : "",
+                selected ? "is-reaction-target" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
-              <div className="participant__info">
-                <span className="participant__avatar" aria-hidden="true">
-                  {player.avatar.type === "gif" ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={player.avatar.value} alt="" />
-                  ) : (
-                    <span>{player.avatar.value}</span>
-                  )}
-                </span>
-                <span className="participant__name">
-                  {player.name}
-                  <span className="participant__badges">
-                    {player.id === hostId ? (
-                      <span className="tag tag--host">Anfitrião</span>
-                    ) : null}
-                    {!player.connected ? (
-                      <span className="tag tag--muted">Offline</span>
-                    ) : null}
+              <button
+                type="button"
+                className="participant__target"
+                onClick={() => onSelectPlayer(player.id)}
+                aria-pressed={selected}
+                aria-label={`Mirar reação em ${player.name}`}
+              >
+                <span className="participant__info">
+                  <span className="participant__avatar" aria-hidden="true">
+                    {player.avatar.type === "gif" ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={player.avatar.value} alt="" />
+                    ) : (
+                      <span>{player.avatar.value}</span>
+                    )}
+                  </span>
+                  <span className="participant__name">
+                    {player.name}
+                    <span className="participant__badges">
+                      {player.id === hostId ? (
+                        <span className="tag tag--host">Anfitrião</span>
+                      ) : null}
+                      {!player.connected ? (
+                        <span className="tag tag--muted">Offline</span>
+                      ) : null}
+                    </span>
                   </span>
                 </span>
-              </div>
+              </button>
+              {player.roast ? (
+                <p className="participant__roast">&ldquo;{player.roast}&rdquo;</p>
+              ) : null}
               <span
                 className={[
                   "participant__vote",

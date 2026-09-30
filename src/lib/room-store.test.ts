@@ -8,6 +8,7 @@ import {
   rejoinRoom,
   getRoom,
   setStory,
+  setRoast,
   _resetStoreForTests,
 } from "./room-store";
 import { toClientSnapshot } from "./room-snapshot";
@@ -65,6 +66,23 @@ describe("room-store", () => {
     resetVotes(created.room.code, created.hostToken);
     const cleared = getRoom(created.room.code)!;
     expect(cleared.story).toBeNull();
+  });
+
+  it("sets roast and clears it on new round", () => {
+    const created = createRoom(baseInput);
+    castVote(created.room.code, created.player.id, "5");
+    revealVotes(created.room.code, created.hostToken);
+
+    expect(
+      setRoast(created.room.code, created.player.id, "isso é 13 fácil"),
+    ).toEqual({ ok: true });
+
+    const snap = toClientSnapshot(getRoom(created.room.code)!, created.player.id);
+    expect(snap.players[0]?.roast).toBe("isso é 13 fácil");
+
+    resetVotes(created.room.code, created.hostToken);
+    const after = getRoom(created.room.code)!;
+    expect(after.players.get(created.player.id)?.roast).toBeNull();
   });
 
   it("sets free-text story", () => {

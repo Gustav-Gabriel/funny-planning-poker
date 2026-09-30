@@ -1,10 +1,12 @@
 import { cardsFor } from "./decks";
+import { isReactionEmoji } from "./social";
 import type { DeckType, Player, Story } from "./types";
 
 export const MAX_NAME_LENGTH = 80;
 export const MAX_EMOJI_LENGTH = 16;
 export const MAX_STORY_TITLE_LENGTH = 200;
 export const MAX_STORY_DESCRIPTION_LENGTH = 4000;
+export const MAX_ROAST_LENGTH = 80;
 
 const KLIPY_HOSTS = new Set(["klipy.com", "www.klipy.com", "media.klipy.com", "cdn.klipy.com"]);
 
@@ -19,7 +21,7 @@ export function isValidDeck(value: unknown): value is DeckType {
   return value === "fibonacci" || value === "tshirt";
 }
 
-function isSafeKlipyUrl(value: string): boolean {
+export function isSafeKlipyUrl(value: string): boolean {
   let url: URL;
   try {
     url = new URL(value);
@@ -141,4 +143,42 @@ export function validatePlayerUpdate(
   }
 
   return result;
+}
+
+/** Empty string clears the roast; otherwise length-limited text. */
+export function validateRoastInput(
+  value: unknown,
+): { roast: string | null } | { error: string } {
+  if (value === null || value === undefined) {
+    return { roast: null };
+  }
+  if (typeof value !== "string") {
+    return { error: "Invalid roast" };
+  }
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return { roast: null };
+  }
+  if (trimmed.length > MAX_ROAST_LENGTH) {
+    return { error: "Roast is too long" };
+  }
+  return { roast: trimmed };
+}
+
+export function validateReactionInput(
+  emoji: unknown,
+  targetPlayerId: unknown,
+):
+  | { emoji: string; targetPlayerId: string | null }
+  | { error: string } {
+  if (!isReactionEmoji(emoji)) {
+    return { error: "Invalid reaction" };
+  }
+  if (targetPlayerId === null || targetPlayerId === undefined) {
+    return { emoji, targetPlayerId: null };
+  }
+  if (typeof targetPlayerId !== "string" || targetPlayerId.length === 0) {
+    return { error: "Invalid reaction target" };
+  }
+  return { emoji, targetPlayerId };
 }

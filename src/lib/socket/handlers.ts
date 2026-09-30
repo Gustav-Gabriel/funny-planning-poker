@@ -1,4 +1,5 @@
 import type { Server, Socket } from "socket.io";
+import { customAlphabet } from "nanoid";
 import { toClientSnapshot } from "../room-snapshot";
 import {
   castVote,
@@ -8,17 +9,25 @@ import {
   rejoinRoom,
   resetVotes,
   revealVotes,
+  setRoast,
   setStory,
   touchRoom,
 } from "../room-store";
-import type { Player, Story } from "../types";
+import type { Player, ReactionShowEvent, Story } from "../types";
 import {
   isValidVoteValue,
   validateCreateRoomInput,
   validateJoinNameAvatar,
   validatePlayerUpdate,
+  validateReactionInput,
+  validateRoastInput,
   validateStoryInput,
 } from "../validation";
+
+const generateReactionId = customAlphabet(
+  "abcdefghijklmnopqrstuvwxyz0123456789",
+  10,
+);
 
 type SuccessAck = { ok: true };
 type ErrorAck = { ok: false; error: string };
@@ -323,6 +332,87 @@ export function registerSocketHandlers(io: Server): void {
         touchRoom(room.code);
         await broadcastRoom(io, room.code);
         ack({ ok: true });
+      },
+    );
+
+    socket.on(
+      "reaction:send",
+      (
+        input: {
+          roomCode?: string;
+          emoji?: unknown;
+          targetPlayerId?: unknown;
+        },
+        ack: Ack<SuccessAck> = () => undefined,
+      ) => {
+        const identity = roomIdentity(socket, input?.roomCode);
+        if ("ok" in identity) {
+          ack(identity);
+          return;
+        }
+
+        const room = getRoom(identity.roomCode);
+        const from = room?.players.get(identity.playerId);
+        if (!room || !from) {
+          ack({ ok: false, error: "Player not found" });
+          return;
+        }
+
+        const validated = validateReactionInput(
+          input?.emoji,
+          input?.targetPlayerId,
+        );
+        if ("error" in validated) {
+          ack({ ok: false, error: validated.error });
+          return;
+        }
+
+        if (
+          validated.targetPlayerId &&
+          !room.players.has(validated.targetPlayerId)
+        ) {
+          ack({ ok: false, error: "Reaction target not found" });
+          return;
+        }
+
+        const payload: ReactionShowEvent = {
+          id: generateReactionId(),
+          fromPlayerId: from.id,
+          fromName: from.name,
+          targetPlayerId: validated.targetPlayerId,
+          emoji: validated.emoji,
+          createdAt: Date.now(),
+        };
+        touchRoom(room.code);
+        io.to(room.code).emit("reaction:show", payload);
+        ack({ ok: true });
+      },
+    );
+
+    socket.on(
+      "roast:set",
+      async (
+        input: { roomCode?: string; roast?: unknown },
+        ack: Ack<SuccessAck> = () => undefined,
+      ) => {
+        const identity = roomIdentity(socket, input?.roomCode);
+        if ("ok" in identity) {
+          ack(identity);
+          return;
+        }
+
+        const validated = validateRoastInput(input?.roast);
+        if ("error" in validated) {
+          ack({ ok: false, error: validated.error });
+          return;
+        }
+
+        await finishMutation(
+          io,
+          identity.roomCode,
+          setRoast(identity.roomCode, identity.playerId, validated.roast),
+          ack,
+        );
       },
     );
 
