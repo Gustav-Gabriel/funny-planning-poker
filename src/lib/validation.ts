@@ -9,6 +9,7 @@ export const MAX_STORY_DESCRIPTION_LENGTH = 4000;
 export const MAX_ROAST_LENGTH = 80;
 
 const KLIPY_HOSTS = new Set(["klipy.com", "www.klipy.com", "media.klipy.com", "cdn.klipy.com"]);
+const GIPHY_HOSTS = new Set(["giphy.com", "www.giphy.com", "i.giphy.com", "media.giphy.com"]);
 
 export function clampString(value: unknown, maxLength: number): string | null {
   if (typeof value !== "string") return null;
@@ -21,15 +22,31 @@ export function isValidDeck(value: unknown): value is DeckType {
   return value === "fibonacci" || value === "tshirt";
 }
 
-export function isSafeKlipyUrl(value: string): boolean {
+function parseHttpsUrl(value: string): URL | null {
   let url: URL;
   try {
     url = new URL(value);
   } catch {
-    return false;
+    return null;
   }
-  if (url.protocol !== "https:") return false;
+  if (url.protocol !== "https:") return null;
+  return url;
+}
+
+export function isSafeKlipyUrl(value: string): boolean {
+  const url = parseHttpsUrl(value);
+  if (!url) return false;
   return KLIPY_HOSTS.has(url.hostname) || url.hostname.endsWith(".klipy.com");
+}
+
+export function isSafeGiphyUrl(value: string): boolean {
+  const url = parseHttpsUrl(value);
+  if (!url) return false;
+  return GIPHY_HOSTS.has(url.hostname) || url.hostname.endsWith(".giphy.com");
+}
+
+export function isSafeGifAvatarUrl(value: string): boolean {
+  return isSafeKlipyUrl(value) || isSafeGiphyUrl(value);
 }
 
 export function isValidAvatar(value: unknown): value is Player["avatar"] {
@@ -45,7 +62,7 @@ export function isValidAvatar(value: unknown): value is Player["avatar"] {
   }
 
   if (avatar.type === "gif") {
-    return typeof avatar.value === "string" && isSafeKlipyUrl(avatar.value);
+    return typeof avatar.value === "string" && isSafeGifAvatarUrl(avatar.value);
   }
 
   return false;

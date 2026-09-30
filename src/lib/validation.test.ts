@@ -33,11 +33,17 @@ describe("isValidAvatar", () => {
     expect(isValidAvatar({ type: "emoji", value: "" })).toBe(false);
   });
 
-  it("only accepts https KLIPY URLs for gif avatars", () => {
+  it("only accepts https KLIPY or Giphy URLs for gif avatars", () => {
     expect(
       isValidAvatar({
         type: "gif",
         value: "https://media.klipy.com/x.gif",
+      }),
+    ).toBe(true);
+    expect(
+      isValidAvatar({
+        type: "gif",
+        value: "https://media1.giphy.com/media/x.gif",
       }),
     ).toBe(true);
     expect(

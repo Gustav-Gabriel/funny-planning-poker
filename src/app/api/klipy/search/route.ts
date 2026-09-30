@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { searchKlipy } from "@/lib/klipy/client";
 
+/** @deprecated Use /api/gifs/search */
 export async function GET(request: Request) {
   const apiKey = process.env.KLIPY_API_KEY;
   if (!apiKey) {

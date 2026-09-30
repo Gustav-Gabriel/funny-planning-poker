@@ -5,9 +5,12 @@ import { FloatingReactions } from "@/components/room/floating-reactions";
 import { Participants } from "@/components/room/participants";
 import { ReactionDock } from "@/components/room/reaction-dock";
 import { RoastComposer } from "@/components/room/roast-composer";
+import { SoundBoard } from "@/components/room/sound-board";
 import { StoryPanel } from "@/components/room/story-panel";
 import { VoteDeck } from "@/components/room/vote-deck";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CopyIcon } from "@/components/icons/ic-copy";
+import { LeaveIcon } from "@/components/icons/ic-leave";
 import { Button } from "@/components/ui/button";
 import { translateError, type MutationAck } from "@/lib/room-ui";
 import { clearSession } from "@/lib/session-client";
@@ -222,7 +225,6 @@ export function GameRoom({
           <h1>Sala {room.code}</h1>
         </div>
         <div className="room__header-actions">
-          <ThemeToggle />
           <div className="room__table-actions">
             {isHost && !room.revealed ? (
               <Button type="button" onClick={handleReveal}>
@@ -235,12 +237,23 @@ export function GameRoom({
               </Button>
             ) : null}
           </div>
-          <button type="button" className="text-link" onClick={handleCopyLink}>
+          <button
+            type="button"
+            className="icon-text-link text-link"
+            onClick={handleCopyLink}
+          >
+            <CopyIcon height={18} width={18} />
             Copiar link
           </button>
-          <button type="button" className="text-link" onClick={handleLeave}>
-            Sair da sala
+          <button
+            type="button"
+            className="icon-text-link text-link"
+            onClick={handleLeave}
+          >
+            <LeaveIcon height={18} width={18} />
+            Sair
           </button>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -288,6 +301,7 @@ export function GameRoom({
             disabled={room.revealed}
             onVote={handleVote}
           />
+          <SoundBoard roomCode={code} playerId={player.id} />
           {voteError ? (
             <p className="form-error" role="alert">
               {voteError}

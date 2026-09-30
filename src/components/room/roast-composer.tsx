@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { PencilIcon } from "@/components/icons/ic-pencil";
 import { MAX_ROAST_LENGTH } from "@/lib/validation";
 
 type RoastComposerProps = {
@@ -20,16 +21,33 @@ export function RoastComposer({ value, onSubmit }: RoastComposerProps) {
   }
 
   if (!open) {
+    if (value) {
+      return (
+        <button
+          type="button"
+          className="icon-button text-link roast-composer__toggle"
+          onClick={() => {
+            setDraft(value);
+            setOpen(true);
+          }}
+          aria-label="Editar comentário"
+          title="Editar comentário"
+        >
+          <PencilIcon height={18} width={18} />
+        </button>
+      );
+    }
+
     return (
       <button
         type="button"
         className="roast-composer__toggle text-link"
         onClick={() => {
-          setDraft(value ?? "");
+          setDraft("");
           setOpen(true);
         }}
       >
-        {value ? "Editar comentário" : "Comentar"}
+        Comentar
       </button>
     );
   }

@@ -7,7 +7,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { EMOJI_OPTIONS } from "@/lib/emoji-options";
-import type { KlipyGif } from "@/lib/klipy/client";
+import type { GifResult, GifSource } from "@/lib/gifs/types";
 import { translateError } from "@/lib/room-ui";
 import type { Player } from "@/lib/types";
 
@@ -23,7 +23,8 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
     value.type === "gif" ? "gif" : "emoji",
   );
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<KlipyGif[]>([]);
+  const [results, setResults] = useState<GifResult[]>([]);
+  const [sources, setSources] = useState<GifSource[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
   const [popover, setPopover] = useState<PopoverKind>(null);
@@ -63,24 +64,28 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
     setError("");
     try {
       const response = await fetch(
-        `/api/klipy/search?q=${encodeURIComponent(trimmed)}`,
+        `/api/gifs/search?q=${encodeURIComponent(trimmed)}`,
       );
       const data = (await response.json()) as {
-        results?: KlipyGif[];
+        results?: GifResult[];
+        sources?: GifSource[];
         error?: string;
       };
       if (!response.ok) {
         setError(translateError(data.error ?? "Falha ao buscar GIFs."));
         setResults([]);
+        setSources([]);
         setPopover(null);
         return;
       }
       const next = data.results ?? [];
       setResults(next);
+      setSources(data.sources ?? []);
       setPopover(next.length > 0 ? "gif" : null);
     } catch {
       setError(translateError("Falha ao buscar GIFs."));
       setResults([]);
+      setSources([]);
       setPopover(null);
     } finally {
       setSearching(false);
@@ -102,6 +107,8 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
     onChange({ type: "gif", value: url });
     setPopover(null);
   }
+
+  const showGiphyAttribution = sources.includes("giphy");
 
   return (
     <div className="avatar-picker" ref={rootRef}>
@@ -247,6 +254,17 @@ export function AvatarPicker({ value, onChange }: AvatarPickerProps) {
                   </button>
                 ))}
               </div>
+              {showGiphyAttribution ? (
+                <p className="avatar-picker__attribution">
+                  <a
+                    href="https://giphy.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Powered by GIPHY
+                  </a>
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>

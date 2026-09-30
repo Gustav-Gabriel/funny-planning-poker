@@ -193,6 +193,32 @@ select {
   flex-shrink: 0;
 }
 
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.icon-text-link {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.icon-text-link svg,
+.icon-button svg {
+  flex-shrink: 0;
+}
+
 .wordmark {
   display: inline-flex;
   gap: 11px;
@@ -1151,6 +1177,19 @@ a:focus-visible {
   object-fit: cover;
 }
 
+.avatar-picker__attribution {
+  margin: 10px 0 0;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--color-gray-muted);
+}
+
+.avatar-picker__attribution a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Game room */
 
 .room__header,
@@ -1266,6 +1305,80 @@ a:focus-visible {
 .room--table .room__table-footer .vote-deck {
   margin: 0;
   width: 100%;
+}
+
+.room--table .room__table-footer .sound-board {
+  width: min(720px, 100%);
+  margin: 0;
+}
+
+.sound-board {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sound-board__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sound-board__toggle {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-solid, var(--color-bg));
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.sound-board__toggle:hover {
+  border-color: var(--color-purple-hover-border);
+  background: var(--color-purple-soft);
+}
+
+.sound-board__mute {
+  font-size: 0.86rem;
+}
+
+.sound-board__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-card-solid, var(--color-bg)) 88%, transparent);
+}
+
+.sound-board__btn {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-card-solid, var(--color-bg));
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 100ms ease;
+}
+
+.sound-board__btn:hover {
+  border-color: var(--color-purple-hover-border);
+  background: var(--color-purple-soft);
+}
+
+.sound-board__btn:active {
+  transform: scale(0.97);
 }
 
 .room--table .vote-deck__cards {

@@ -13,7 +13,8 @@ import {
   setStory,
   touchRoom,
 } from "../room-store";
-import type { Player, ReactionShowEvent, Story } from "../types";
+import type { Player, ReactionShowEvent, AudioPlayEvent, Story } from "../types";
+import { isValidSoundId } from "../audio-sounds";
 import {
   isValidVoteValue,
   validateCreateRoomInput,
@@ -385,6 +386,42 @@ export function registerSocketHandlers(io: Server): void {
         };
         touchRoom(room.code);
         io.to(room.code).emit("reaction:show", payload);
+        ack({ ok: true });
+      },
+    );
+
+    socket.on(
+      "audio:play",
+      (
+        input: { roomCode?: string; soundId?: unknown },
+        ack: Ack<SuccessAck> = () => undefined,
+      ) => {
+        const identity = roomIdentity(socket, input?.roomCode);
+        if ("ok" in identity) {
+          ack(identity);
+          return;
+        }
+
+        const room = getRoom(identity.roomCode);
+        const from = room?.players.get(identity.playerId);
+        if (!room || !from) {
+          ack({ ok: false, error: "Player not found" });
+          return;
+        }
+
+        if (!isValidSoundId(input?.soundId)) {
+          ack({ ok: false, error: "Invalid sound" });
+          return;
+        }
+
+        const payload: AudioPlayEvent = {
+          soundId: input.soundId,
+          fromPlayerId: from.id,
+          fromName: from.name,
+          createdAt: Date.now(),
+        };
+        touchRoom(room.code);
+        io.to(room.code).emit("audio:play", payload);
         ack({ ok: true });
       },
     );

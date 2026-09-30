@@ -1,10 +1,9 @@
+import type { GifResult } from "@/lib/gifs/types";
+
 const REQUEST_TIMEOUT_MS = 20_000;
 
-export type KlipyGif = {
-  id: string;
-  url: string;
-  preview: string;
-};
+/** @deprecated Prefer GifResult from @/lib/gifs/types */
+export type KlipyGif = GifResult;
 
 type KlipyRendition = {
   url?: string;
@@ -58,7 +57,7 @@ function pickPreviewUrl(item: KlipyMediaItem, fallback: string): string {
   );
 }
 
-export async function searchKlipy(q: string): Promise<KlipyGif[]> {
+export async function searchKlipy(q: string): Promise<GifResult[]> {
   const apiKey = process.env.KLIPY_API_KEY;
   if (!apiKey) {
     throw new Error("KLIPY_API_KEY is not configured");
@@ -66,7 +65,7 @@ export async function searchKlipy(q: string): Promise<KlipyGif[]> {
 
   const params = new URLSearchParams({
     q,
-    per_page: "48",
+    per_page: "24",
     content_filter: "medium",
   });
 
@@ -96,11 +95,13 @@ export async function searchKlipy(q: string): Promise<KlipyGif[]> {
       const url = pickGifUrl(item);
       if (!url) return null;
 
+      const id = String(item.id ?? item.slug ?? url);
       return {
-        id: String(item.id ?? item.slug ?? url),
+        id: `klipy:${id}`,
         url,
         preview: pickPreviewUrl(item, url),
+        source: "klipy" as const,
       };
     })
-    .filter((item): item is KlipyGif => item !== null);
+    .filter((item): item is GifResult => item !== null);
 }

@@ -76,6 +76,7 @@ const ERROR_MAP: Array<[RegExp, string]> = [
   [/invalid reaction/i, "Reação inválida."],
   [/reaction target not found/i, "Alvo da reação não encontrado."],
   [/invalid reaction target/i, "Alvo da reação inválido."],
+  [/invalid sound/i, "Som inválido."],
   [
     /\b(failed|required|not found|invalid|unauthorized|error|must be|cannot|unable)\b/i,
     "",

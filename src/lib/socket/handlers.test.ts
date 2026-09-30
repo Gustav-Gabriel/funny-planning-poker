@@ -227,6 +227,41 @@ describe("registerSocketHandlers", () => {
     });
   });
 
+  it("broadcasts allowlisted board sounds to the room", async () => {
+    const host = await startHarness();
+    const created = await emitAck(host, "room:create", roomCreatePayload);
+    const room = created.room as { code: string };
+
+    const guest = await addClient();
+    await emitAck(guest, "room:join", {
+      roomCode: room.code,
+      name: "Bob",
+      avatar: { type: "emoji", value: "🐸" },
+    });
+
+    const playPromise = once<{ soundId: string; fromName: string }>(
+      guest,
+      "audio:play",
+    );
+    expect(
+      await emitAck(host, "audio:play", {
+        roomCode: room.code,
+        soundId: "vine-boom",
+      }),
+    ).toEqual({ ok: true });
+    await expect(playPromise).resolves.toMatchObject({
+      soundId: "vine-boom",
+      fromName: "Ana",
+    });
+
+    expect(
+      await emitAck(host, "audio:play", {
+        roomCode: room.code,
+        soundId: "not-a-sound",
+      }),
+    ).toMatchObject({ ok: false, error: "Invalid sound" });
+  });
+
   it("updates players and tracks leave and disconnect presence", async () => {
     const host = await startHarness();
     const created = await emitAck(host, "room:create", roomCreatePayload);

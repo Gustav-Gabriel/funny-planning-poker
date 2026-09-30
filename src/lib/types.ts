@@ -27,6 +27,13 @@ export type ReactionShowEvent = {
   createdAt: number;
 };
 
+export type AudioPlayEvent = {
+  soundId: string;
+  fromPlayerId: string;
+  fromName: string;
+  createdAt: number;
+};
+
 export type RevealBurstEvent = {
   id: string;
   mood: RevealBurstMood;

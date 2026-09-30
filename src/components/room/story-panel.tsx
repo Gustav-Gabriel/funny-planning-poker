@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { ChevronDownIcon } from "@/components/icons/ic-chevron-down";
+import { PencilIcon } from "@/components/icons/ic-pencil";
+import { TrashIcon } from "@/components/icons/ic-trash";
 import { Button } from "@/components/ui/button";
 import { linkifyText } from "@/lib/linkify";
 import type { MutationAck } from "@/lib/room-ui";
@@ -82,11 +84,23 @@ export function StoryPanel({
         <h2>História da rodada</h2>
         {isHost && story && !editing ? (
           <div className="story-panel__heading-actions">
-            <button type="button" className="text-link" onClick={() => setEditing(true)}>
-              Editar
+            <button
+              type="button"
+              className="icon-button text-link"
+              onClick={() => setEditing(true)}
+              aria-label="Editar história"
+              title="Editar história"
+            >
+              <PencilIcon height={18} width={18} />
             </button>
-            <button type="button" className="text-link" onClick={handleClear}>
-              Remover
+            <button
+              type="button"
+              className="icon-button text-link"
+              onClick={handleClear}
+              aria-label="Remover história"
+              title="Remover história"
+            >
+              <TrashIcon height={18} width={18} />
             </button>
           </div>
         ) : null}
