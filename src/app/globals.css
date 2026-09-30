@@ -2137,7 +2137,7 @@ a:focus-visible {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 40%;
+  width: 70%;
 }
 
 .participant--table .participant__avatar {
