@@ -76,18 +76,18 @@ export async function searchGiphy(q: string): Promise<GifResult[]> {
   const payload = (await response.json()) as GiphySearchResponse;
   const items = payload.data ?? [];
 
-  return items
-    .map((item) => {
-      const url = pickGifUrl(item);
-      if (!url) return null;
+  const results: GifResult[] = [];
+  for (const item of items) {
+    const url = pickGifUrl(item);
+    if (!url) continue;
 
-      const id = String(item.id ?? url);
-      return {
-        id: `giphy:${id}`,
-        url,
-        preview: pickPreviewUrl(item, url),
-        source: "giphy" as const,
-      };
-    })
-    .filter((item): item is GifResult => item !== null);
+    const id = String(item.id ?? url);
+    results.push({
+      id: `giphy:${id}`,
+      url,
+      preview: pickPreviewUrl(item, url),
+      source: "giphy",
+    });
+  }
+  return results;
 }

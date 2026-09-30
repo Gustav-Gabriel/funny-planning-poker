@@ -90,18 +90,18 @@ export async function searchKlipy(q: string): Promise<GifResult[]> {
   const payload = (await response.json()) as KlipySearchResponse;
   const items = payload.data?.data ?? [];
 
-  return items
-    .map((item) => {
-      const url = pickGifUrl(item);
-      if (!url) return null;
+  const results: GifResult[] = [];
+  for (const item of items) {
+    const url = pickGifUrl(item);
+    if (!url) continue;
 
-      const id = String(item.id ?? item.slug ?? url);
-      return {
-        id: `klipy:${id}`,
-        url,
-        preview: pickPreviewUrl(item, url),
-        source: "klipy" as const,
-      };
-    })
-    .filter((item): item is GifResult => item !== null);
+    const id = String(item.id ?? item.slug ?? url);
+    results.push({
+      id: `klipy:${id}`,
+      url,
+      preview: pickPreviewUrl(item, url),
+      source: "klipy",
+    });
+  }
+  return results;
 }
